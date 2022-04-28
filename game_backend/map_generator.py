@@ -241,11 +241,13 @@ class Generator():
                 if col == 'wall':
                     tmp_tiles.append(self.tiles['wall'])
             self.tiles_level.append(tmp_tiles)
-        #print('Room List: ', self.room_list)
-        #print('\nCorridor List: ', self.corridor_list)
-        #[print(row) for row in self.tiles_level]
+
 
 if __name__ == '__main__':
+
     gen = Generator()
     gen.gen_level()
     gen.gen_tiles_level()
+    print('Room List: ', gen.room_list)
+    print('\nCorridor List: ', gen.corridor_list)
+    print([row for row in gen.tiles_level])
