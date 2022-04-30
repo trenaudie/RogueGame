@@ -33,18 +33,17 @@ def index():
 @app.route("/home")
 def index():
     global map
+    flash("helllooooo")
     if request.method == "GET":
         return render_template("index.html", mapdata=map, n_row=len(map), n_col=len(map[0]) )
 
 @socketio.on('add_enemy')
 def add_enemy():
-    flash("You have added an enemy")
     game.add_enemy()
 
 @socketio.on('add_player')
 def add_player():
     sid = request.sid
-    flash("You have added a player")
     game.add_my_player(sid)
 
 @socketio.on("move")
@@ -56,24 +55,18 @@ def on_move_msg(json):
     dx = json['dx']
     dy = json["dy"]
     data, survive = game.move_player_sid(dx,dy, sid)
-    if survive and data:
-        socketio.emit("response", data)
-    elif not survive:
+    if not survive:
         del game.players[sid]
-    if not data: #do not move player
-        pass
-
+    socketio.emit("response", data)
 
 @socketio.on("move_enemies")
 def on_move_enemy_msg():
     print("received move enemy message")
-    flash("received move_enemies")
     all_enemies_data = game.move_enemies()
     socketio.emit("response_enemies", all_enemies_data)
 
 @socketio.on("show_id")
 def on_show_id_msg(json):
-    flash("received show_id in app.py")
     print(json)
 
 if __name__=="__main__":

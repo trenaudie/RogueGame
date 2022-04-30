@@ -87,6 +87,7 @@ window.addEventListener("DOMContentLoaded", (event) => {
             }
         }
     });
+ 
     setInterval(function(){
         socket.emit("move_enemies")
     }, 5000)

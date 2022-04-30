@@ -241,7 +241,11 @@ class Generator():
                 if col == 'wall':
                     tmp_tiles.append(self.tiles['wall'])
             self.tiles_level.append(tmp_tiles)
-
+        mid_row = self.tiles_level[self.height//2]
+        x = 0
+        while mid_row[x] != ".":
+            mid_row[x] = "."
+            x += 1
 
 if __name__ == '__main__':
 

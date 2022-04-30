@@ -3,7 +3,7 @@ from .player import Enemy, Player
 
 
 class Game:
-    def __init__(self, width=96, height=32):
+    def __init__(self, width=64, height=32):
         self._generator = Generator(width=width, height=height)
         self._generator.gen_level()
         self._generator.gen_tiles_level()
