@@ -39,12 +39,12 @@ class Player:
             data = [{"i": f"{self._y}", "j":f"{self._x}", "content":"."}, {"i": f"{new_y}", "j":f"{new_x}", "content":self._symbol}]
             self._x = new_x
             self._y = new_y
-        if map[new_y][new_x] == "&":
+        elif map[new_y][new_x] == "&":
             survive = False 
             map[self._y][self._x] = "."
         else:
             survive = True #player still alive 
-            data = []
+            data = [{"i": f"{self._y}", "j":f"{self._x}", "content":self._symbol}, {"i": f"{new_y}", "j":f"{new_x}", "content": map[new_y][new_x]}]
         return data, survive
 
 class Enemy:

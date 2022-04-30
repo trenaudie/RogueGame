@@ -58,7 +58,7 @@ def on_move_msg(json):
     data, survive = game.move_player_sid(dx,dy, sid)
     if survive and data:
         socketio.emit("response", data)
-    if not survive:
+    elif not survive:
         del game.players[sid]
     if not data: #do not move player
         pass
