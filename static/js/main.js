@@ -4,6 +4,12 @@ let id_;
 const enemyBtn = document.querySelector('#enemyBtn');
 const playerBtn = document.querySelector('#playerBtn');
 
+function removeAllChildElements(ele){
+    while(ele.firstChild){
+        ele.removeChild(ele.firstChild)
+    }
+}
+
 window.addEventListener("DOMContentLoaded", (event) => {
     var socket = io.connect("http://" + document.domain + ":" + location.port );
     for(let span of spans){
@@ -39,36 +45,30 @@ window.addEventListener("DOMContentLoaded", (event) => {
 
     var btn_s = document.getElementById("go_s");
     btn_s.onclick = function(e) {
-        console.log("Clicked on button south");
         socket.emit("move", {dx:0, dy:1});
     };
 
     var btn_w = document.getElementById("go_w");
     btn_w.onclick = function(e) {
-        console.log("Clicked on button w");
         socket.emit("move", {dx:-1, dy:0, id: id_});
     };
 
     var btn_e = document.getElementById("go_e");
     btn_e.onclick = function(e) {
-        console.log("Clicked on button e");
         socket.emit("move", {dx:1, dy:0});}
 
     playerBtn.onclick = function(e){
-        console.log("clicked on button playerBtn");
         e.preventDefault()
         socket.emit("add_player")
     }
     enemyBtn.onclick = function(e){
-        console.log("clicked on btn enemyBtn");
         e.preventDefault()
         socket.emit('add_enemy')
     }
     //socket.on('login') enter the client id into a variable. Use it whenever moving / updating player
 
-    socket.on("response", function(data){
-        console.log(data);
-        for( var i=0; i<2; i++){
+    socket.on("response", function(map){
+/*         for( var i=0; i<2; i++){
             var cell_id = "cell " + data[i].i + "-" + data[i].j;
             var span_to_modif = document.getElementById(cell_id);
             span_to_modif.textContent = data[i].content;
@@ -76,9 +76,77 @@ window.addEventListener("DOMContentLoaded", (event) => {
                 span_to_modif.classList.add('btn');}
             else {
                 span_to_modif.classList.remove('btn');}
+        } */
+        n = map.length
+        m = map[0].length
+        for(var i=0; i<n; i++){
+            for(var j=0; j<m; j++){
+                var cell_id = "cell " + i + "-" + j;
+                clientSpan = document.getElementById(cell_id);
+                removeAllChildElements(clientSpan)
+                clientSpan.textContent=''
+                if (map[i][j] == "@"){
+                    im = document.createElement('img')
+                    im.src = "../static/rogue_player.jpeg"
+                    clientSpan.appendChild(im)
+                    clientSpan.style.margin = "-4px"
+                }
+        
+                else if (map[i][j] == "&"){
+                    im2 = document.createElement('img');
+                    im2.src = "../static/enemy.png"
+                    clientSpan.appendChild(im2);
+                    clientSpan.style.margin = "-7px"
+                }
+                else if (map[i][j] == "^"){
+                    /* food ! */
+                    im2 = document.createElement('img');
+                    im2.src = "../static/banana.png"
+                    clientSpan.appendChild(im2);
+                    clientSpan.style.margin = "-2px"
+                }
+                else if (map[i][j] == "$"){
+                    /* life ! */
+                    im2 = document.createElement('img');
+                    im2.src = "../static/heart.jpeg"
+                    clientSpan.appendChild(im2);
+                    clientSpan.style.margin = "-2px"
+                }
+                else if (map[i][j] == "!"){
+                    /* sword ! */
+                    im2 = document.createElement('img');
+                    im2.src = "../static/sword.jpg"
+                    clientSpan.appendChild(im2);
+                    clientSpan.style.margin = "-1px"
+                }
+                else{
+                    clientSpan.textContent = map[i][j] + " ";
+                    clientSpan.style.margin = "0px"
+                }
+            }
         }
     });
-    socket.on("response_enemies", function(enemies_data){
+    socket.on("inventory", function(inventory){
+        player_lifes = document.getElementById('life_box');
+        removeAllChildElements(player_lifes)
+        for(i = 0; i<player_inventory['life']; i++){
+            img = document.createElement('img')
+            img.src = "../heart.jpeg"
+            player_lifes.appendChild(img)
+        }
+        player_weapons = document.getElementById('weapon_box');
+        removeAllChildElements(player_weapons)
+        for(i = 0; i<player_inventory['sword']; i++){
+            img = document.createElement('img')
+            img.src = "../sword.jpg"
+            player_weapons.appendChild(img)
+        }
+        player_killcount = document.getElementById('killcount_box');
+        removeAllChildElements(player_killcount);
+        player_killcount.textContent = `Killcount: ${player_inventory['killcount']}`
+    })
+
+/*     socket.on("response_enemies", function(enemies_data){
         for(let data of enemies_data){
             for(var i=0; i<2; i++){
                 var cell_id = "cell " + data[i].i + "-" + data[i].j;
@@ -86,7 +154,7 @@ window.addEventListener("DOMContentLoaded", (event) => {
                 span_to_modif.textContent = data[i].content;
             }
         }
-    });
+    }); */
  
     setInterval(function(){
         socket.emit("move_enemies")

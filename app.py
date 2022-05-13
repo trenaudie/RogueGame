@@ -6,7 +6,9 @@ app = Flask(__name__)
 socketio = SocketIO(app)
 game = Game()
 app.config['SECRET_KEY'] = "hello there my name is Tanguy"
-map = game.getMap()
+map = game._map
+for k in range(15):
+    game.add_item()
 
 
 
@@ -33,9 +35,12 @@ def index():
 @app.route("/home")
 def index():
     global map
-    flash("helllooooo")
     if request.method == "GET":
         return render_template("index.html", mapdata=map, n_row=len(map), n_col=len(map[0]) )
+
+
+
+
 
 @socketio.on('add_enemy')
 def add_enemy():
@@ -44,6 +49,7 @@ def add_enemy():
 @socketio.on('add_player')
 def add_player():
     sid = request.sid
+    print(f"ADD PLAYER FUNCTION----sid: {sid}")
     game.add_my_player(sid)
 
 @socketio.on("move")
@@ -54,20 +60,33 @@ def on_move_msg(json):
     print("received move message")
     dx = json['dx']
     dy = json["dy"]
-    data, survive = game.move_player_sid(dx,dy, sid)
+    survive = game.move_player_sid(dx,dy, sid)
+    inventory = game.players[sid].inventory
     if not survive:
         del game.players[sid]
-    socketio.emit("response", data)
+    socketio.emit("response", game._map)
+    socketio.emit("inventory", inventory)
 
 @socketio.on("move_enemies")
 def on_move_enemy_msg():
     print("received move enemy message")
-    all_enemies_data = game.move_enemies()
-    socketio.emit("response_enemies", all_enemies_data)
+    game.move_enemies()
+    socketio.emit("response", game._map)
 
 @socketio.on("show_id")
 def on_show_id_msg(json):
     print(json)
+
+#refresh with a timer thread
+import threading, time
+def refresh():
+    while True:
+        socketio.emit("response", game._map)
+        time.sleep(100)
+t = threading.Thread(target=refresh)
+t.start()
+
+
 
 if __name__=="__main__":
     socketio.run(app, port=5001, debug=True)

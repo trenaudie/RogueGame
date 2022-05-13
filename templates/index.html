@@ -12,24 +12,32 @@
             <div class="key d-flex justify-content-center">
                 <div class="col-6 mx-4"><input id="go_w" class="keypad_btn" type="button" value="&#9664"></div>
                 <div class="col-6 mx-4"><input id="go_e" class="keypad_btn" type="button" value="&#9654"></div>
-            </div>
-            <br>
-            <div class="d-flex justify-content-center">
-                <div class="key"><input id="go_s" class="keypad_btn" type="button" value="&#9660"> </div>
-            </div>
-                <input type="submit" id="enemyBtn" name ="enemy" value="Add Enemy" class = "btn btn-primary m-4">
-
-                <input type="submit" id="playerBtn" name ="player" value="Add My Player" class = "btn btn-primary m-4">
-
-
         </div>
+        <br>
+        <div class="d-flex justify-content-center">
+            <div class="key"><input id="go_s" class="keypad_btn" type="button" value="&#9660"> </div>
+        </div>
+        <input type="submit" id="enemyBtn" name ="enemy" value="Add Enemy" class = "btn btn-primary m-4">
+        <input type="submit" id="playerBtn" name ="player" value="Add My Player" class = "btn btn-primary m-4">
+
+    </div>
+    <div class="col-6 m-4" style = "border-style: solid" id = "player_box">
+        <div class="col-2" id="life_box">
+        </div>
+        <div class="col-2" id="weapon_box">
+        </div>
+        <div class="col-2" id="killcount_box">
+            0
+        </div>
+    </div>
+
 
         <!-- class to use when playing: text-nowrap -->
         <div id="console" style="font-family: monospace;" class="col-12 mb-4 d-inline-block text-truncate">
             {% for i in range(n_row) %}
             <div style="height:20px">
                 {% for j in range(n_col) %}
-                <span id="{{ 'cell {}-{}'.format(i,j) }}" class = "textSpan"> {{ mapdata[i][j] }} </span>
+                <span id="{{ 'cell {}-{}'.format(i,j) }}" class = "textSpan">{{mapdata[i][j] }} </span>
                 {% endfor %}
             </div>
             {% endfor %}
@@ -37,5 +45,7 @@
 
     </div>
 </div>
-
+<div class="container" id = "Hello">
+    <img src="{{url_for('static', filename='rogue_player.png')}}" alt="">
+</div>
 {%endblock%}
