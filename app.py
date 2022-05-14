@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash
+from flask import Flask, render_template, request, flash, session
 from flask_socketio import SocketIO
 from game_backend import Game
 
@@ -6,9 +6,9 @@ app = Flask(__name__)
 socketio = SocketIO(app)
 game = Game()
 app.config['SECRET_KEY'] = "hello there my name is Tanguy"
-map = game._map
-for k in range(15):
-    game.add_item()
+for k in range(20):
+    game.add_item(level = 1)
+    game.add_item(level = 2)
 
 
 
@@ -34,9 +34,11 @@ def index():
 @app.route("/")
 @app.route("/home")
 def index():
-    global map
-    if request.method == "GET":
-        return render_template("index.html", mapdata=map, n_row=len(map), n_col=len(map[0]) )
+    level = 1
+    if request.method == "GET" and level == 1 :
+        return render_template("index.html", mapdata=game._map, n_row=len(game._map), n_col=len(game._map[0]) )
+    if request.method == "GET" and level == 2 :
+        return render_template("index.html", mapdata=game._map2, n_row=len(game._map), n_col=len(game._map[0]) )
 
 
 
@@ -44,13 +46,16 @@ def index():
 
 @socketio.on('add_enemy')
 def add_enemy():
-    game.add_enemy()
+    sid = request.sid
+    p = game.players[sid]
+    game.add_enemy(p.level)
 
 @socketio.on('add_player')
 def add_player():
     sid = request.sid
     print(f"ADD PLAYER FUNCTION----sid: {sid}")
     game.add_my_player(sid)
+
 
 @socketio.on("move")
 def on_move_msg(json):
@@ -64,8 +69,8 @@ def on_move_msg(json):
     inventory = game.players[sid].inventory
     if not survive:
         del game.players[sid]
-    socketio.emit("response", game._map)
-    socketio.emit("inventory", inventory)
+
+
 
 @socketio.on("move_enemies")
 def on_move_enemy_msg():
@@ -80,10 +85,17 @@ def on_show_id_msg(json):
 #refresh with a timer thread
 import threading, time
 def refresh():
-    while True:
-        socketio.emit("response", game._map)
-        time.sleep(100)
-t = threading.Thread(target=refresh)
+    print('REFRESH STARTED')
+    while True: 
+        for p in game.players.values():
+            if p.level == 1:
+                socketio.emit("response", game._map, to = p.sid )
+            if p.level == 2:
+                socketio.emit("response", game._map2, to = p.sid )
+                print(game._map2[0][10:20])
+            socketio.emit('inventory', p.inventory, to = p.sid)
+        time.sleep(1/30)
+t = threading.Thread(target=refresh, args = ())
 t.start()
 
 

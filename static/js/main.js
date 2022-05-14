@@ -79,12 +79,14 @@ window.addEventListener("DOMContentLoaded", (event) => {
         } */
         n = map.length
         m = map[0].length
+
         for(var i=0; i<n; i++){
             for(var j=0; j<m; j++){
                 var cell_id = "cell " + i + "-" + j;
                 clientSpan = document.getElementById(cell_id);
                 removeAllChildElements(clientSpan)
                 clientSpan.textContent=''
+                clientSpan.style.backgroundColor = "white"
                 if (map[i][j] == "@"){
                     im = document.createElement('img')
                     im.src = "../static/rogue_player.jpeg"
@@ -119,6 +121,11 @@ window.addEventListener("DOMContentLoaded", (event) => {
                     clientSpan.appendChild(im2);
                     clientSpan.style.margin = "-1px"
                 }
+                else if (map[i][j] == "#"){
+                    /* sword ! */
+                    clientSpan.textContent='# ';
+                    clientSpan.style.backgroundColor = "grey";
+                }
                 else{
                     clientSpan.textContent = map[i][j] + " ";
                     clientSpan.style.margin = "0px"
@@ -127,23 +134,36 @@ window.addEventListener("DOMContentLoaded", (event) => {
         }
     });
     socket.on("inventory", function(inventory){
+        console.log(inventory)
+        player_foods = document.getElementById('food_box');
+        removeAllChildElements(player_foods)
+        console.log(player_foods)
+        console.log(`My food level is ${inventory.food}`)
+        for(i = 0; i<inventory['food']; i++){
+            img = document.createElement('img')
+            img.src = "../static/banana.png"
+            player_foods.appendChild(img)
+            setTimeout(function(){
+                player_foods.removeChild(player_foods.lastChild)
+            }, 10000)
+        }
         player_lifes = document.getElementById('life_box');
         removeAllChildElements(player_lifes)
-        for(i = 0; i<player_inventory['life']; i++){
+        for(i = 0; i<inventory['life']; i++){
             img = document.createElement('img')
-            img.src = "../heart.jpeg"
+            img.src = "../static/heart.jpeg"
             player_lifes.appendChild(img)
         }
         player_weapons = document.getElementById('weapon_box');
         removeAllChildElements(player_weapons)
-        for(i = 0; i<player_inventory['sword']; i++){
+        for(i = 0; i<inventory['sword']; i++){
             img = document.createElement('img')
-            img.src = "../sword.jpg"
+            img.src = "../static/sword.jpg"
             player_weapons.appendChild(img)
         }
         player_killcount = document.getElementById('killcount_box');
         removeAllChildElements(player_killcount);
-        player_killcount.textContent = `Killcount: ${player_inventory['killcount']}`
+        player_killcount.textContent = `Killcount: ${inventory['killcount']}`
     })
 
 /*     socket.on("response_enemies", function(enemies_data){

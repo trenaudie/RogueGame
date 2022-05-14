@@ -37,58 +37,80 @@ class Player:
             self.initPos(_map)
 
 
-    def move(self, dx, dy, map):
+    def move(self, dx, dy, map, map2):
+        if self.level == 1:
+            main_map = map
+            scnd_map = map2 
+        if self.level == 2:
+            main_map = map2
+            scnd_map = map
         new_x = self._x + self.speed*dx
         new_y = self._y + self.speed*dy
-        new_map = map[new_y][new_x]
-        print("MOVE MESSAGE RESULT:")
-        print("BEFORE:", new_map)
-        if new_x == 0 and new_y == len(map)//2:
-            print("you have reached a new level")
-            self.level = 2
+        print(f"new x : {new_x}")
+        print(f"is new_y == len(map)//2? { new_y == len(map)//2}")
+        if new_x == -1 and new_y == len(map)//2:
+            if self.level == 1:
+                print("changing level to 2")
+                self.level = 2
+            elif self.level == 2:
+                self.level = 1
+            main_map[self._y][self._x] = '.'
+            self._x = 2
+            self._y = len(map)//2
+            scnd_map[self._y][self._x] = '@'
+            print(f'now self.level is equal to {self.level}')
             return True
-        if new_map == ".":
+        elif main_map[new_y][new_x] == ".":
             survive =True
-            new_map = self._symbol
-            map[self._y][self._x] = "."
+            main_map[new_y][new_x] = self._symbol
+            main_map[self._y][self._x] = "."
             self._x = new_x
             self._y = new_y
-        elif new_map == "&":
+            main_map[self._y][self._x] = self.symbol
+        elif main_map[new_y][new_x] == "&":
             if self.inventory['sword'] >=1:
                 survive = True
-                map[self._y][self._x] = "."
-                new_map = self._symbol
+                main_map[self._y][self._x] = "."
                 self._x = new_x
                 self._y = new_y
+                main_map[self._y][self._x] = self.symbol
                 self.inventory['sword'] -= 1
+                self.inventory['killcount'] += 1
             if self.inventory['life'] >=1:
                 survive= True
                 self.inventory['life'] -=1
-        elif new_map == "!":
+                main_map[self._y][self._x] = "."
+                self._x = new_x
+                self._y = new_y
+                main_map[self._y][self._x] = self.symbol
+        elif main_map[new_y][new_x] == "!":
             survive = True
-            self.inventory['sword'] += 3
-            map[self._y][self._x] = "."
-            new_map = self.symbol
+            self.inventory['sword'] += 1
+            main_map[self._y][self._x] = "."
             self._x = new_x
             self._y = new_y
-        elif new_map == "$":
+            main_map[self._y][self._x] = self.symbol
+        elif main_map[new_y][new_x] == "$":
             survive = True
             self.inventory['life'] += 1
-            map[self._y][self._x] = "."
-            new_map = self.symbol
+            main_map[self._y][self._x] = "."
             self._x = new_x
             self._y = new_y
-        elif new_map == "^":
+            main_map[self._y][self._x] = self.symbol
+        elif main_map[new_y][new_x] == "^":
+            #banana eaten -> speed 
             survive = True
             self.inventory['food'] += 1
-            map[self._y][self._x] = "."
-            new_map = self.symbol
+            main_map[self._y][self._x] = "."
             self._x = new_x
             self._y = new_y
+            main_map[self._y][self._x] = self.symbol
             self.speed *= 2
             def change_speed(self):
-                time.sleep(5000)
+                time.sleep(10)
+                print("changing speed back to 1")
                 self.speed = 1
+                self.inventory['food'] -= 1
             t = threading.Thread(target = change_speed, args = (self,))
             t.start()
         else:

@@ -32,6 +32,7 @@ class Generator():
         self.room_list = []
         self.corridor_list = []
         self.tiles_level = []
+        self.tiles_level2 = []
     
     def gen_room(self):
         x, y, w, h = 0, 0, 0, 0
@@ -160,6 +161,7 @@ class Generator():
                     self.corridor_list.append(corridors)
 
     def gen_level(self):
+        self.level = []
         # build an empty dungeon, blank the room and corridor lists
         for i in range(self.height):
             self.level.append(['stone'] * self.width)
@@ -230,22 +232,40 @@ class Generator():
                     if self.level[row + 1][col + 1] == 'stone':
                         self.level[row + 1][col + 1] = 'wall'
 
-    def gen_tiles_level(self):
-        for row_num, row in enumerate(self.level):
-            tmp_tiles = []
-            for col_num, col in enumerate(row):
-                if col == 'stone':
-                    tmp_tiles.append(self.tiles['stone'])
-                if col == 'floor':
-                    tmp_tiles.append(self.tiles['floor'])
-                if col == 'wall':
-                    tmp_tiles.append(self.tiles['wall'])
-            self.tiles_level.append(tmp_tiles)
-        mid_row = self.tiles_level[self.height//2]
-        x = 0
-        while mid_row[x] != ".":
-            mid_row[x] = "."
-            x += 1
+    def gen_tiles_level(self, i:int = 1):
+        if i == 1:
+            for row_num, row in enumerate(self.level):
+                tmp_tiles = []
+                for col_num, col in enumerate(row):
+                    if col == 'stone':
+                        tmp_tiles.append(self.tiles['stone'])
+                    if col == 'floor':
+                        tmp_tiles.append(self.tiles['floor'])
+                    if col == 'wall':
+                        tmp_tiles.append(self.tiles['wall'])
+                self.tiles_level.append(tmp_tiles)
+            mid_row = self.tiles_level[self.height//2]
+            x = 0
+            while mid_row[x] != ".":
+                mid_row[x] = "."
+                x += 1
+        if i == 2:
+            for row_num, row in enumerate(self.level):
+                tmp_tiles = []
+                for col_num, col in enumerate(row):
+                    if col == 'stone':
+                        tmp_tiles.append(self.tiles['stone'])
+                    if col == 'floor':
+                        tmp_tiles.append(self.tiles['floor'])
+                    if col == 'wall':
+                        tmp_tiles.append(self.tiles['wall'])
+                self.tiles_level2.append(tmp_tiles)
+            mid_row = self.tiles_level2[self.height//2]
+            x = 0
+            while mid_row[x] != ".":
+                mid_row[x] = "."
+                x += 1
+            
 
 if __name__ == '__main__':
 
