@@ -62,7 +62,6 @@ def on_move_msg(json):
     print(request.sid)
     sid = request.sid
     print(json)
-    print("received move message")
     dx = json['dx']
     dy = json["dy"]
     survive = game.move_player_sid(dx,dy, sid)
@@ -74,9 +73,7 @@ def on_move_msg(json):
 
 @socketio.on("move_enemies")
 def on_move_enemy_msg():
-    print("received move enemy message")
     game.move_enemies()
-    socketio.emit("response", game._map)
 
 @socketio.on("show_id")
 def on_show_id_msg(json):
@@ -85,14 +82,12 @@ def on_show_id_msg(json):
 #refresh with a timer thread
 import threading, time
 def refresh():
-    print('REFRESH STARTED')
     while True: 
         for p in game.players.values():
             if p.level == 1:
                 socketio.emit("response", game._map, to = p.sid )
             if p.level == 2:
                 socketio.emit("response", game._map2, to = p.sid )
-                print(game._map2[0][10:20])
             socketio.emit('inventory', p.inventory, to = p.sid)
         time.sleep(1/30)
 t = threading.Thread(target=refresh, args = ())

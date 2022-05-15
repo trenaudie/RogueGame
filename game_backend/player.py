@@ -37,7 +37,7 @@ class Player:
             self.initPos(_map)
 
 
-    def move(self, dx, dy, map, map2):
+    def move(self, dx, dy, map, map2, enemylist):
         if self.level == 1:
             main_map = map
             scnd_map = map2 
@@ -68,6 +68,10 @@ class Player:
             self._y = new_y
             main_map[self._y][self._x] = self.symbol
         elif main_map[new_y][new_x] == "&":
+            #find enemy in enemylist
+            for enemy in enemylist:
+                if (enemy._x, enemy._y, enemy.level) == (new_x,new_y,self.level):
+                    enemy_found = enemy
             if self.inventory['sword'] >=1:
                 survive = True
                 main_map[self._y][self._x] = "."
@@ -76,6 +80,8 @@ class Player:
                 main_map[self._y][self._x] = self.symbol
                 self.inventory['sword'] -= 1
                 self.inventory['killcount'] += 1
+                enemylist.remove(enemy_found)
+
             if self.inventory['life'] >=1:
                 survive= True
                 self.inventory['life'] -=1
@@ -122,35 +128,45 @@ class Enemy:
         self._symbol = symbol
         self._x = None
         self._y = None
+        self.dx = 1,1
     
-    def init_pos(self, _map):
-        n_row = len(_map)
-        #n_col = len(_map[0])
-
-        y_init = random.randint(1,n_row-1)
+    def init_pos(self, _map, level : int):
+        self.level = level
         found = False
-        while found is False:
-            y_init += 1
-            for i,c in enumerate(_map[y_init]):
-                if c == ".":
-                    x_init = i
+        while found == False:
+            y = random.randint(0,len(_map)-1)
+            tries = 0
+            while True and tries<10: 
+                x = random.randint(0,len(_map[0])-1)
+                tries += 1
+                if _map[y][x] == '.':
                     found = True
                     break
+        if found:
+            self._x = x
+            self._y = y
+        else:
+            self.init_pos(_map)
 
-        self._x = x_init
-        self._y = y_init
 
     def move_automatically(self, _map):
-        new_x = self._x + random.randint(-1,1)
-        new_y = self._y + random.randint(-1,1)
+        dx = random.randint(-1,1),random.randint(-1,1)
+        new_x = self._x + dx[0]
+        new_y = self._y + dx[1]
 
         contained = False
         while contained is False: 
+            if dx == self.dx: 
+                dx = random.randint(-1,1),random.randint(-1,1)
+                new_x = self._x + dx[0]
+                new_y = self._y + dx[1]
+                continue
             if _map[new_y][new_x] != '#':
                 contained = True
             else: #you have hit a wall
-                new_x = self._x + random.randint(-1,1)
-                new_y = self._y + random.randint(-1,1)
+                dx = random.randint(-1,1),random.randint(-1,1)
+                new_x = self._x + dx[0]
+                new_y = self._y + dx[1]
         if _map[new_y][new_x] == '@':
             print("GAMEOVER")
         _map[new_y][new_x] = self._symbol

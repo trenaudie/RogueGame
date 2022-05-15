@@ -23,7 +23,7 @@ class Game:
 
 
     def move_player_sid(self, dx, dy, sid):
-        return self.players[sid].move(dx, dy, self._map, self._map2)
+        return self.players[sid].move(dx, dy, self._map, self._map2, self.enemies)
 
     def add_my_player(self, sid):
         p = Player()
@@ -41,12 +41,16 @@ class Game:
         if level ==2:
             _map = self._map2
         enemy = Enemy()
-        enemy.init_pos(_map)
+        enemy.init_pos(_map,level=level)
+        self.enemies.append(enemy)
         _map[enemy._y][enemy._x] = enemy._symbol
         
     def move_enemies(self):
         for enemy in self.enemies:
-            enemy.move_automatically(self._map)
+            if enemy.level == 1:
+                enemy.move_automatically(self._map)
+            elif enemy.level == 2:
+                enemy.move_automatically(self._map2)
 
     def add_item(self, level = 1):
         if level == 1:

@@ -134,11 +134,8 @@ window.addEventListener("DOMContentLoaded", (event) => {
         }
     });
     socket.on("inventory", function(inventory){
-        console.log(inventory)
         player_foods = document.getElementById('food_box');
         removeAllChildElements(player_foods)
-        console.log(player_foods)
-        console.log(`My food level is ${inventory.food}`)
         for(i = 0; i<inventory['food']; i++){
             img = document.createElement('img')
             img.src = "../static/banana.png"
@@ -178,7 +175,7 @@ window.addEventListener("DOMContentLoaded", (event) => {
  
     setInterval(function(){
         socket.emit("move_enemies")
-    }, 5000)
+    }, 1000)
 
 });
 
