@@ -20,6 +20,7 @@ class Game:
         self.players = {}
         self.enemies = []
         self.sprites = []
+        self.sids = {}
 
 
     def move_player_sid(self, dx, dy, sid):

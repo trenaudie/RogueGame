@@ -3,6 +3,9 @@ const spans = document.querySelectorAll('.textSpan');
 let id_;
 const enemyBtn = document.querySelector('#enemyBtn');
 const playerBtn = document.querySelector('#playerBtn');
+const saveBtn = document.getElementById('saveBtn');
+const textBox = document.getElementById('user_text');
+const resumeBtn = document.querySelector('#resumeBtn')
 
 function removeAllChildElements(ele){
     while(ele.firstChild){
@@ -64,6 +67,16 @@ window.addEventListener("DOMContentLoaded", (event) => {
     enemyBtn.onclick = function(e){
         e.preventDefault()
         socket.emit('add_enemy')
+    }
+    saveBtn.onclick = function(e){
+        e.preventDefault();
+        username = textBox.value
+        socket.emit('save_game', username)
+    }
+    resumeBtn.onclick = function(e){
+        e.preventDefault()
+        username = textBox.value
+        socket.emit("resume_game", username)
     }
     //socket.on('login') enter the client id into a variable. Use it whenever moving / updating player
 

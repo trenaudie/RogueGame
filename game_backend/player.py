@@ -13,7 +13,6 @@ class Player:
         self.level = 1
         self.inventory = {'sword' : 0, 'life' : 0, 'killcount': 0, 'food' : 0}
         self.speed = 1
-        self.symbol = "@"
 
     def initPos(self, _map):
         n_row = len(_map)
