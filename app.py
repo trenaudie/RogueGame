@@ -38,24 +38,30 @@ def make_user(username,_x,_y,inventory,_map,_map2, level):
         _map2 = json.dumps(_map2)
     if(type(inventory) != str):
         inventory = json.dumps(inventory)
-    user = User(username = username, x = _x, y = _y, inventory = inventory, map = _map, map2 = _map2, level = level)
-    print(f"adding user {user} to db.session")
-    db.session.add(user)
+    if User.query.get(username):
+        user = User.query.get(username)
+        print(f"updating user {user} in db.session")
+        user.x = _x
+        user.y = _y
+        user.inventory = inventory
+        user.map = _map
+        user.map2 = _map2
+    else:
+        user = User(username = username, x = _x, y = _y, inventory = inventory, map = _map, map2 = _map2, level = level)
+        print(f"adding user {user} to db.session")
+        db.session.add(user)
     db.session.commit()
 
 def get_user(username,game:Game,sid: str):
     game.sids[username] = sid
     player = Player()
     user = User.query.get(username)
-    print("-----------------------------------------")
     player._x = user.x
     player._y = user.y
     player.inventory = json.loads(user.inventory)
     l = user.level
-    print(f"level l : {l}")
     game._map = json.loads(user.map)
     game._map2 = json.loads(user.map2)
-    print(type(game._map))
     if int(l) == 1:
         game._map[player._y][player._x] = player._symbol
     if int(l) == 2:
@@ -162,7 +168,7 @@ def refresh():
             if p.level == 2:
                 socketio.emit("response", game._map2, to = sid )
             socketio.emit('inventory', p.inventory, to = sid)
-        time.sleep(1/20)
+        time.sleep(1/5)
 t = threading.Thread(target=refresh, args = ())
 t.start()
 
