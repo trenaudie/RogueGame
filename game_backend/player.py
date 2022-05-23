@@ -33,11 +33,14 @@ class Player:
         if found:
             self._x = x_init
             self._y = y_init
+            print(f"new y:{self._y}")
         else:
             self.initPos(_map)
 
 
     def move(self, dx, dy, map, map2, enemylist, playerlist = None):
+        survive2 = True
+        sid2 = None
         if self.level == 1:
             main_map = map
             scnd_map = map2 
@@ -57,7 +60,7 @@ class Player:
             self._y = len(map)//2
             scnd_map[self._y][self._x] = '@'
             print(f'now self.level is equal to {self.level}')
-            return True
+            survive = True
         elif main_map[new_y][new_x] == ".":
             survive =True
             main_map[new_y][new_x] = self._symbol
@@ -95,6 +98,7 @@ class Player:
                 survive = False
                 self.inventory['deathcount'] += 1
                 main_map[self._y][self._x] = "."
+                return False, True, None
 
 
         elif main_map[new_y][new_x] == "@":

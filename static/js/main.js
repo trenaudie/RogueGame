@@ -190,6 +190,14 @@ window.addEventListener("DOMContentLoaded", (event) => {
         player_deathcount.textContent = `Deathcount: ${inventory['deathcount']}`
     })
 
+
+
+    socket.on("GameOver", function(){
+        alertBtn.innerHTML = "Game Over! Respawning!"
+        setTimeout(function(){
+            alertBtn.innerHTML = ""
+        }, 3000)
+    })
 /*     socket.on("response_enemies", function(enemies_data){
         for(let data of enemies_data){
             for(var i=0; i<2; i++){
@@ -200,9 +208,9 @@ window.addEventListener("DOMContentLoaded", (event) => {
         }
     }); */
  
-    setInterval(function(){
+/*     setInterval(function(){
         socket.emit("move_enemies")
-    }, 1000)
+    }, 1000) */
 
 });
 

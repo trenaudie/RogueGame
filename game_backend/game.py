@@ -26,10 +26,9 @@ class Game:
     def move_player_sid(self, dx, dy, sid):
         return self.players[sid].move(dx, dy, self._map, self._map2, self.enemies, self.players.values())
 
-    def add_my_player(self, sid, deathcount = 0):
+    def add_my_player(self, sid):
 
         p = Player()
-        p.inventory['deathcount'] = deathcount
         try: 
             p.initPos(self._map)
         except: 
@@ -44,8 +43,8 @@ class Game:
         new_p = Player()
         new_p .inventory = p.inventory
         new_p.initPos(self._map)
-        self._map[new_p._y][new_p._x] = new_p.symbol
-        self.players[sid] = new_p 
+        self._map[new_p._y][new_p._x] = "@"
+        self.players[sid] = new_p
         new_p.sid = sid
 
 

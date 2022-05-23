@@ -126,9 +126,11 @@ def on_move_msg(json):
     if not survive:
         print(f"RESPAWNING MY PLAYER")
         game.respawn_player(sid)
+        socketio.emit("GameOver", to = sid)
     if survive2 == False and sid2:
         print(f"SECOND PLAYER DEAD")
         game.respawn_player(sid2)
+        socketio.emit("GameOver", to = sid2)
 
 
 
@@ -173,10 +175,14 @@ def refresh():
         time.sleep(1/5)
 t = threading.Thread(target=refresh, args = ())
 t.start()
-
-
+def refresh_enemies():
+    while True :
+        game.move_enemies()
+        time.sleep(0.7)
+t2 = threading.Thread(target=refresh_enemies, args = ()) 
+t2.start()
 
 if __name__=="__main__":
-    socketio.run(app, port=5001, debug=True)
+    socketio.run(app, port=5002, debug=True)
 
 
