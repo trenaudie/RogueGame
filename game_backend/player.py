@@ -8,6 +8,7 @@ import time
 class Player:
     def __init__(self, symbol="@"):
         self._symbol = symbol
+        self.symbol = symbol
         self._x = None
         self._y = None
         self.level = 1
@@ -45,8 +46,6 @@ class Player:
             scnd_map = map
         new_x = self._x + self.speed*dx
         new_y = self._y + self.speed*dy
-        print(f"new x : {new_x}")
-        print(f"is new_y == len(map)//2? { new_y == len(map)//2}")
         if new_x == -1 and new_y == len(map)//2:
             if self.level == 1:
                 print("changing level to 2")

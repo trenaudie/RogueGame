@@ -4,6 +4,8 @@ from game_backend import Game
 from flask_sqlalchemy import SQLAlchemy
 import json
 
+from game_backend.player import Player
+
 app = Flask(__name__)
 socketio = SocketIO(app)
 game = Game()
@@ -18,17 +20,17 @@ for k in range(20):
 
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    username = db.Column(db.String(80), unique = True, nullable = False)
+    username = db.Column(db.String(80), primary_key = True, unique = True, nullable = False)
     x = db.Column(db.Integer)
     y = db.Column(db.Integer)
+    level = db.Column(db.Integer)
     inventory = db.Column(db.String, unique = False, nullable = False)
     map = db.Column(db.String, unique = False, nullable = False)
     map2 = db.Column(db.String, unique = False, nullable = False) 
     def __repr__(self):
         return '<User %r>' % self.username
 db.create_all()
-def make_user(username,_x,_y,inventory,_map,_map2):
+def make_user(username,_x,_y,inventory,_map,_map2, level):
     assert(type(username) == str)
     if(type(_map) == list):
         _map = json.dumps(_map)
@@ -36,10 +38,29 @@ def make_user(username,_x,_y,inventory,_map,_map2):
         _map2 = json.dumps(_map2)
     if(type(inventory) != str):
         inventory = json.dumps(inventory)
-    user = User(username = username, x = _x, y = _y, inventory = inventory, map = _map, map2 = _map2)
+    user = User(username = username, x = _x, y = _y, inventory = inventory, map = _map, map2 = _map2, level = level)
     print(f"adding user {user} to db.session")
     db.session.add(user)
     db.session.commit()
+
+def get_user(username,game:Game,sid: str):
+    game.sids[username] = sid
+    player = Player()
+    user = User.query.get(username)
+    print("-----------------------------------------")
+    player._x = user.x
+    player._y = user.y
+    player.inventory = json.loads(user.inventory)
+    l = user.level
+    print(f"level l : {l}")
+    game._map = json.loads(user.map)
+    game._map2 = json.loads(user.map2)
+    print(type(game._map))
+    if int(l) == 1:
+        game._map[player._y][player._x] = player._symbol
+    if int(l) == 2:
+        game._map2[player._y][player._x] = player._symbol
+    game.players[sid] = player
 
 #creating all databases
 db.create_all()
@@ -116,27 +137,32 @@ def on_show_id_msg(json):
 def on_savegame_msg(data):
     print(f"saving game for user {data} with sid {request.sid}")
     game.sids[data] = request.sid
-    player = game.players[request.sid]
+    try:
+        player = game.players[request.sid]
+    except KeyError as ke:
+        print("You must choose a player")
+        return
     inventory = player.inventory
     username = data
-    make_user(username, player._x, player._y, inventory, game._map, game._map2)
+    make_user(username, player._x, player._y, inventory, game._map, game._map2, player.level)
 
 @socketio.on("resume_game")
 def on_resumegame_msg(data):
-    print(f"saving game for user {data} with sid {request.sid}")
+    print(f"resuming game for user {data} with sid {request.sid}")
+    get_user(data,game,request.sid)
     
 
 #refresh with a timer thread
 import threading, time
 def refresh():
     while True: 
-        for p in game.players.values():
+        for sid, p in game.players.items():
             if p.level == 1:
-                socketio.emit("response", game._map, to = p.sid )
+                socketio.emit("response", game._map, to = sid )
             if p.level == 2:
-                socketio.emit("response", game._map2, to = p.sid )
-            socketio.emit('inventory', p.inventory, to = p.sid)
-        time.sleep(1/30)
+                socketio.emit("response", game._map2, to = sid )
+            socketio.emit('inventory', p.inventory, to = sid)
+        time.sleep(1/20)
 t = threading.Thread(target=refresh, args = ())
 t.start()
 
