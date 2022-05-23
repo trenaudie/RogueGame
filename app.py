@@ -120,13 +120,13 @@ def add_player():
 def on_move_msg(json):
     print(request.sid)
     sid = request.sid
-    print(json)
     dx = json['dx']
     dy = json["dy"]
     survive = game.move_player_sid(dx,dy, sid)
     inventory = game.players[sid].inventory
     if not survive:
-        del game.players[sid]
+        print(f"RESPAWNING")
+        game.add_my_player(sid)
 
 
 

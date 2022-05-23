@@ -37,7 +37,7 @@ class Player:
             self.initPos(_map)
 
 
-    def move(self, dx, dy, map, map2, enemylist):
+    def move(self, dx, dy, map, map2, enemylist, playerlist = None):
         if self.level == 1:
             main_map = map
             scnd_map = map2 
@@ -66,11 +66,12 @@ class Player:
             self._y = new_y
             main_map[self._y][self._x] = self.symbol
         elif main_map[new_y][new_x] == "&":
-            #find enemy in enemylist
+            print("ENEMY ENCOUNTERED")
             for enemy in enemylist:
                 if (enemy._x, enemy._y, enemy.level) == (new_x,new_y,self.level):
                     enemy_found = enemy
             if self.inventory['sword'] >=1:
+                print('ENEMY KILLED')
                 survive = True
                 main_map[self._y][self._x] = "."
                 self._x = new_x
@@ -80,13 +81,46 @@ class Player:
                 self.inventory['killcount'] += 1
                 enemylist.remove(enemy_found)
 
-            if self.inventory['life'] >=1:
+            elif self.inventory['life'] >=1:
+                print("LOST A LIFE")
                 survive= True
                 self.inventory['life'] -=1
                 main_map[self._y][self._x] = "."
                 self._x = new_x
                 self._y = new_y
                 main_map[self._y][self._x] = self.symbol
+            
+            else:
+                print("PLAYER DEAD.")
+                survive = False
+                main_map[self._y][self._x] = "."
+
+
+        elif main_map[new_y][new_x] == "@":
+            #find enemy in enemylist
+            for p in playerlist:
+                if (p._x, p._y, p.level) == (new_x,new_y,self.level):
+                    player_found = p
+            if self.inventory['sword'] >=1:
+                survive = True
+                self.inventory['sword'] -= 1
+                if player_found.inventory['life'] < 1: 
+                    #player_found is dead
+                    self.inventory['killcount'] += 1
+                    main_map[self._y][self._x] = "."
+                else:
+                    player_found.inventory['heart'] -= 1
+            if self.inventory['life'] >=1:
+                survive = True
+                self.inventory['life'] -= 1
+                if player_found.inventory['life'] < 1: 
+                    #player_found is dead
+                    self.inventory['killcount'] += 1
+                    main_map[self._y][self._x] = "."
+            if self.inventory['sword'] == 0 and self.inventory['heart'] == 0  :
+                survive = False 
+                main_map[self._y][self._x] = "."              
+
         elif main_map[new_y][new_x] == "!":
             survive = True
             self.inventory['sword'] += 1
