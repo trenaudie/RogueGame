@@ -184,6 +184,10 @@ window.addEventListener("DOMContentLoaded", (event) => {
         player_killcount = document.getElementById('killcount_box');
         removeAllChildElements(player_killcount);
         player_killcount.textContent = `Killcount: ${inventory['killcount']}`
+
+        player_deathcount = document.getElementById('deathcount_box');
+        removeAllChildElements(player_deathcount);
+        player_deathcount.textContent = `Deathcount: ${inventory['deathcount']}`
     })
 
 /*     socket.on("response_enemies", function(enemies_data){

@@ -12,7 +12,7 @@ class Player:
         self._x = None
         self._y = None
         self.level = 1
-        self.inventory = {'sword' : 0, 'life' : 0, 'killcount': 0, 'food' : 0}
+        self.inventory = {'sword' : 0, 'life' : 0, 'killcount': 0, 'food' : 0, 'deathcount':0}
         self.speed = 1
 
     def initPos(self, _map):
@@ -93,6 +93,7 @@ class Player:
             else:
                 print("PLAYER DEAD.")
                 survive = False
+                self.inventory['deathcount'] += 1
                 main_map[self._y][self._x] = "."
 
 
@@ -101,25 +102,30 @@ class Player:
             for p in playerlist:
                 if (p._x, p._y, p.level) == (new_x,new_y,self.level):
                     player_found = p
+                    sid2 = p.sid
+            #if I have a sword
             if self.inventory['sword'] >=1:
                 survive = True
                 self.inventory['sword'] -= 1
                 if player_found.inventory['life'] < 1: 
                     #player_found is dead
                     self.inventory['killcount'] += 1
+                    player_found.inventory['deathcount'] += 1
+                    main_map[new_y][new_x] = "."
+                    survive2 = False
+                else:
+                    player_found.inventory['life'] -= 1
+            #if other player has a sword
+            if player_found.inventory['sword'] >=1:
+                player_found.inventory['sword'] -= 1
+                if self.inventory['life'] < 1: 
+                    #I am dead
+                    survive = False
+                    self.inventory['deathcount'] += 1
+                    player_found.inventory['killcount'] += 1
                     main_map[self._y][self._x] = "."
                 else:
-                    player_found.inventory['heart'] -= 1
-            if self.inventory['life'] >=1:
-                survive = True
-                self.inventory['life'] -= 1
-                if player_found.inventory['life'] < 1: 
-                    #player_found is dead
-                    self.inventory['killcount'] += 1
-                    main_map[self._y][self._x] = "."
-            if self.inventory['sword'] == 0 and self.inventory['heart'] == 0  :
-                survive = False 
-                main_map[self._y][self._x] = "."              
+                    player_found.inventory['life'] -= 1
 
         elif main_map[new_y][new_x] == "!":
             survive = True
@@ -153,7 +159,7 @@ class Player:
             t.start()
         else:
             survive = True #player still alive 
-        return survive
+        return survive, survive2, sid2
 
 class Enemy:
     def __init__(self, symbol="&"):
